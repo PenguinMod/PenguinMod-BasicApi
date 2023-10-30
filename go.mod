@@ -1,4 +1,4 @@
-module pm-basic-api
+module github.com/PenguinMod/PenguinMod-BasicApi
 
 go 1.21.3
 
