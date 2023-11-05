@@ -42,7 +42,7 @@ func (d GHCommitsByDate) Swap(i, j int) { d[i], d[j] = d[j], d[i] }
 func (d GHCommitsByDate) Less(i, j int) bool {
 	time1, _ := time.Parse(time.RFC3339, d[i].Commit.Author.Date)
 	time2, _ := time.Parse(time.RFC3339, d[j].Commit.Author.Date)
-	return time1.Before(time2)
+	return time1.After(time2)
 }
 
 func getRecentsCommits() {
