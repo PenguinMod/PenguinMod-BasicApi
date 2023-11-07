@@ -101,10 +101,12 @@ func startDiscordBot() {
 					Type: "warn",
 					Text: strings.TrimSpace(strings.Replace(m.Content, "--status-set", "", 1)),
 				}
+				s.MessageReactionAdd(m.ChannelID, m.ID, "<:good:1118293837773807657>")
 			} else if strings.HasPrefix(m.Content, "--status-remove") {
 				currentStatus = Status{
 					Type: "empty",
 				}
+				s.MessageReactionAdd(m.ChannelID, m.ID, "<:good:1118293837773807657>")
 			}
 		} else if m.ChannelID == discordUpdateChannel && len(m.Attachments) > 0 {
 			log.Printf("updating latest update by request of %s", m.Author.Username)
