@@ -55,6 +55,7 @@ func getRecentsCommits() {
 		"https://api.github.com/repos/PenguinMod/PenguinMod-Packager/commits?per_page=50",
 		"https://api.github.com/repos/PenguinMod/PenguinMod-Render/commits?per_page=50",
 		"https://api.github.com/repos/PenguinMod/PenguinMod-ExtensionsGallery/commits?per_page=50",
+		"https://api.github.com/repos/PenguinMod/PenguinMod-BackendApi/commits?per_page=50",
 	}
 
 	var newRecentCommits []GHApiCommit
