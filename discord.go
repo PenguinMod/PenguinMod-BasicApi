@@ -133,3 +133,31 @@ func startDiscordBot() {
 	}
 	defer dg.Close()
 }
+
+func refreshLatestUpdate(dg *discordgo.Session) {
+	updateMessages, err := dg.ChannelMessages(discordUpdateChannel, 1, "", "", "")
+	if err != nil {
+		log.Printf("failed to fetch the latest update: %s", err)
+		return
+	}
+
+	if len(updateMessages) > 0 {
+		m := updateMessages[0]
+		if len(m.Attachments) > 0 {
+			currentUpdate = Update{
+				ID:           m.ID,
+				GuildID:      m.GuildID,
+				ChannelID:    m.ChannelID,
+				CreatedTs:    m.Timestamp.UnixMilli(),
+				EditedTs:     m.Timestamp.UnixMilli(),
+				AuthorID:     m.Author.ID,
+				AuthorName:   m.Author.Username,
+				AuthorImage:  m.Author.AvatarURL(""),
+				Content:      m.Content,
+				CleanContent: m.ContentWithMentionsReplaced(),
+				Image:        m.Attachments[0].URL,
+			}
+			log.Printf("updated latest update: %s", currentUpdate.Content)
+		}
+	}
+}
