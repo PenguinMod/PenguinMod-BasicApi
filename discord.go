@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -46,51 +47,58 @@ func startDiscordBot() {
 	// set intents (all we want is guild messages)
 	dg.Identify.Intents = discordgo.IntentsGuildMessages
 
-	// get current status
-	statusMessages, err := dg.ChannelMessages(discordStatusChannel, 0, "", "", "")
-	if err != nil {
-		log.Fatalf("failed getting current status: %s", err)
-	}
-	for i := 0; i < len(statusMessages); i++ {
-		m := statusMessages[i]
-		if strings.HasPrefix(m.Content, "--status-set") {
-			currentStatus = Status{
-				Type: "warn",
-				Text: strings.TrimSpace(strings.Replace(m.Content, "--status-set", "", 1)),
+	go func() {
+		for {
+			// get current status
+			statusMessages, err := dg.ChannelMessages(discordStatusChannel, 0, "", "", "")
+			if err != nil {
+				log.Fatalf("failed getting current status: %s", err)
 			}
-			break
-		} else if strings.HasPrefix(m.Content, "--status-remove") {
-			currentStatus = Status{
-				Type: "empty",
+			for i := 0; i < len(statusMessages); i++ {
+				m := statusMessages[i]
+				if strings.HasPrefix(m.Content, "--status-set") {
+					currentStatus = Status{
+						Type: "warn",
+						Text: strings.TrimSpace(strings.Replace(m.Content, "--status-set", "", 1)),
+					}
+					break
+				} else if strings.HasPrefix(m.Content, "--status-remove") {
+					currentStatus = Status{
+						Type: "empty",
+					}
+					break
+				}
 			}
-			break
-		}
-	}
 
-	// get latest update
-	updateMessages, err := dg.ChannelMessages(discordUpdateChannel, 0, "", "", "")
-	if err != nil {
-		log.Fatalf("failed getting latest update: %s", err)
-	}
-	for i := 0; i < len(updateMessages); i++ {
-		m := updateMessages[i]
-		if len(m.Attachments) > 0 {
-			currentUpdate = Update{
-				ID:           m.ID,
-				GuildID:      m.GuildID,
-				ChannelID:    m.ChannelID,
-				CreatedTs:    m.Timestamp.UnixMilli(),
-				EditedTs:     m.Timestamp.UnixMilli(),
-				AuthorID:     m.Author.ID,
-				AuthorName:   m.Author.Username,
-				AuthorImage:  m.Author.AvatarURL(""),
-				Content:      m.Content,
-				CleanContent: m.ContentWithMentionsReplaced(),
-				Image:        m.Attachments[0].URL,
+			// get latest update
+			updateMessages, err := dg.ChannelMessages(discordUpdateChannel, 0, "", "", "")
+			if err != nil {
+				log.Fatalf("failed getting latest update: %s", err)
 			}
-			break
+			for i := 0; i < len(updateMessages); i++ {
+				m := updateMessages[i]
+				if len(m.Attachments) > 0 {
+					currentUpdate = Update{
+						ID:           m.ID,
+						GuildID:      m.GuildID,
+						ChannelID:    m.ChannelID,
+						CreatedTs:    m.Timestamp.UnixMilli(),
+						EditedTs:     m.Timestamp.UnixMilli(),
+						AuthorID:     m.Author.ID,
+						AuthorName:   m.Author.Username,
+						AuthorImage:  m.Author.AvatarURL(""),
+						Content:      m.Content,
+						CleanContent: m.ContentWithMentionsReplaced(),
+						Image:        m.Attachments[0].URL,
+					}
+					break
+				}
+			}
+
+			// pause for 30 mins
+			time.Sleep(time.Minute * 30)
 		}
-	}
+	}()
 
 	// messageCreate handler
 	dg.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
