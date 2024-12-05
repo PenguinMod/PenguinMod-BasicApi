@@ -20,5 +20,5 @@ jobs:
 
     - name: Build and push images
       run: |
-        IMAGE_NAME=ghcr.io/${{ github.repository }}
+        IMAGE_NAME=ghcr.io/PenguinMod/penguinmod-basicapi
         docker buildx build --push -t $IMAGE_NAME:${{ github.sha }} -t $IMAGE_NAME:latest .
