@@ -14,6 +14,7 @@ func backgroundTask() {
 	for {
 		time.Sleep(15 * time.Minute)
 		getRecentsCommits()
+		refreshLatestUpdate(dg)
 	}
 }
 
